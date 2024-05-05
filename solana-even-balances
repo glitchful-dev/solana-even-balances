@@ -1,0 +1,79 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+if (( $# < 2 )); then
+    echo "Provide at least 2 keypairs" >&2
+    exit 1
+fi
+
+epsilon="0.000100000"
+
+balances=$(
+    set -e
+    set -o pipefail
+
+    for keypair in "$@"
+    do
+        echo "Keypair: $keypair" >&2
+        pubkey=$(solana-keygen pubkey "$keypair")
+        echo "Pubkey: $pubkey" >&2
+        balance=$(solana balance "$pubkey" | awk '{print $1}')
+        echo "Balance: $balance" >&2
+
+        echo "$keypair $pubkey $balance"
+        echo >&2
+    done
+)
+
+commands=$(
+    set -e
+    set -o pipefail
+    <<<"$balances" sort -nr -k3 | awk -v epsilon="$epsilon" '{
+        keypairs[NR] = $1
+        pubkeys[NR] = $2
+        balances[NR] = $3
+        total = total + $3
+    } END {
+        target = total / NR
+
+        i = 1
+        j = NR
+        while (i != j) {
+            extra = balances[i] - target
+            missing = target - balances[j]
+            if (extra < epsilon || missing < epsilon) {
+                break
+            }
+            transfer = extra < missing ? extra : missing
+            printf "solana transfer -k %s %s %0.9f\n", keypairs[i], pubkeys[j], transfer
+
+            if (extra - transfer < epsilon) {
+                i++
+            }
+            if (missing - transfer < epsilon) {
+                j--
+            }
+        }
+    }'
+)
+
+if [[ -z $commands ]]
+then
+    echo "No action planned." >&2
+    exit
+fi
+
+echo "Planned commands:" >&2
+echo >&2
+echo "$commands" >&2
+echo >&2
+
+read -p "Are you sure you want to continue? <y/N> " prompt
+if [[ $prompt =~ [yY](es)* ]]
+then
+    echo "Executing..." >&2
+    echo >&2
+    <<<"$commands" bash
+fi
