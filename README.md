@@ -1,4 +1,4 @@
-# Solana Even Balance
+# Solana Even Balances
 
 A simple utility script to transfer SOL tokens between wallets to reach equal balance on all of them.
 
