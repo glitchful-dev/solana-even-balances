@@ -21,7 +21,7 @@ A simple utility script to transfer SOL tokens between any amount of wallets giv
 
 # Planned commands:
 
-# solana transfer -k ~/.config/solana/wallet-1.json SomePubkey1111111111111111111111111111111111 1
+# solana transfer -k ~/.config/solana/wallet-3.json SomePubkey1111111111111111111111111111111111 1
 
 # Are you sure you want to continue? <y/N> y
 # Executing...
