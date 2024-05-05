@@ -1,6 +1,6 @@
 # Solana Even Balance
 
-A simple utility script to transfer SOL tokens between any amount of wallets given their keypairs.
+A simple utility script to transfer SOL tokens between wallets to reach equal balance on all of them.
 
 ## Example
 
