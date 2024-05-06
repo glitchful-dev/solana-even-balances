@@ -47,7 +47,7 @@ commands=$(
                 break
             }
             transfer = extra < missing ? extra : missing
-            printf "solana transfer -k %s %s %0.9f\n", keypairs[i], pubkeys[j], transfer
+            printf "solana transfer -k %s --allow-unfunded-recipient %s %0.9f\n", keypairs[i], pubkeys[j], transfer
 
             if (extra - transfer < epsilon) {
                 i++
